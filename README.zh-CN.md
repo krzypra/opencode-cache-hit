@@ -299,6 +299,8 @@ rm -rf ~/.cache/opencode/packages/opencode-cache-hit@latest
 
 **需要**支持 TUI 插件槽位的 OpenCode（`@opencode-ai/plugin` ≥ 1.14）。可与 visual-cache 共存；运行时除 `package.json` 中声明的 peer 依赖外无额外依赖。
 
+**终端宽度：** OpenCode 仅在 TUI **宽于 120 列**（121+）时自动显示侧边栏。低于此宽度时侧边栏组件根本不会挂载，`sidebar_content` 类插件（含本插件）于是**什么都不渲染**：没有面板、没有占位文字、也没有报错，插件本身照常加载。终端低于 121 列时，用 `session.sidebar.toggle`（默认 `<leader>b`）手动打开，此时以全屏 overlay 形式出现。`tui.json` 无法强制常显：侧边栏状态只有 `auto` / `hide` 两种。
+
 ## 文档索引
 
 | 读者 | English | 中文 |
