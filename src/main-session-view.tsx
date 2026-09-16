@@ -3,6 +3,7 @@ import { Show, createMemo, createSignal, onCleanup } from "solid-js"
 import { TokenDetailRows } from "./cache-hit-rows.tsx"
 import { CacheTTLView } from "./cache-ttl-view.tsx"
 import { formatStreamingNowDisplay, type StreamingPhase } from "./streaming-state.ts"
+import { emptyTokenDist, formatDistTokenCount, type TokenDist } from "./token-distribution.ts"
 import type { CacheHitMetrics } from "./use-cache-hit-metrics.ts"
 import type { CacheTTLConfig } from "./plugin-config.ts"
 import type { AssistantMessage } from "./types.ts"
@@ -22,9 +23,12 @@ export function MainSessionView(props: {
   layout: PanelLayout
   detail: SectionFold
   speed: SectionFold
+  dist: SectionFold
   model: SectionFold
   lineages: SectionFold
   showSpeed: boolean
+  showDistribution?: boolean
+  tokenDist?: Accessor<TokenDist>
   streamingNow: Accessor<{ phase: StreamingPhase; speed: number }>
   formatCost: (n: number) => string
   formatRate: (perMillion: number) => string
@@ -41,6 +45,7 @@ export function MainSessionView(props: {
     const now = props.streamingNow()
     return formatStreamingNowDisplay(now.phase, now.speed, m.t().streamingIdle, m.useTps())
   })
+  const distData = createMemo(() => props.tokenDist?.() ?? emptyTokenDist())
 
   /** Use the per-message recomputed cost when dynamic rules price every message, else OpenCode's msg.cost. */
   const shownCost = createMemo(() => {
@@ -217,6 +222,71 @@ export function MainSessionView(props: {
           />
         </Show>
       </TuiSection>
+
+      <Show when={props.showDistribution !== false && distData().hasData}>
+        <TuiSection
+          pal={m.pal()}
+          layout={layout}
+          open={props.dist.open()}
+          title={m.t().secDist}
+          onToggle={props.dist.toggle}
+        >
+          <Show when={distData().system > 0}>
+            <TuiMetricRow
+              pal={m.pal()}
+              layout={layout}
+              label={m.t().distSys}
+              value={formatDistTokenCount(distData().system)}
+              unit={m.t().tok}
+            />
+          </Show>
+          <Show when={distData().user > 0}>
+            <TuiMetricRow
+              pal={m.pal()}
+              layout={layout}
+              label={m.t().distUser}
+              value={formatDistTokenCount(distData().user)}
+              unit={m.t().tok}
+            />
+          </Show>
+          <Show when={distData().agent > 0}>
+            <TuiMetricRow
+              pal={m.pal()}
+              layout={layout}
+              label={m.t().distAgent}
+              value={formatDistTokenCount(distData().agent)}
+              unit={m.t().tok}
+            />
+          </Show>
+          <Show when={distData().toolCall > 0}>
+            <TuiMetricRow
+              pal={m.pal()}
+              layout={layout}
+              label={m.t().distToolCall}
+              value={formatDistTokenCount(distData().toolCall)}
+              unit={m.t().tok}
+            />
+          </Show>
+          <Show when={distData().toolResult > 0}>
+            <TuiMetricRow
+              pal={m.pal()}
+              layout={layout}
+              label={m.t().distToolResult}
+              value={formatDistTokenCount(distData().toolResult)}
+              unit={m.t().tok}
+            />
+          </Show>
+          <Show when={distData().reasoning > 0}>
+            <TuiMetricRow
+              pal={m.pal()}
+              layout={layout}
+              label={m.t().distReasoning}
+              value={formatDistTokenCount(distData().reasoning)}
+              unit={m.t().tok}
+            />
+          </Show>
+        </TuiSection>
+      </Show>
 
       <Show when={m.lineages().length > 1}>
         <TuiSection

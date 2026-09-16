@@ -31,6 +31,7 @@ import { createChildSessionSync } from "./child-session-sync.ts"
 import type { SessionListEntry } from "./session-list.ts"
 import { loadPluginConfig } from "./load-config.ts"
 import { computeAvgTokenTpotMs, computeAvgTokenSpeed } from "./token-speed.ts"
+import { computeTokenDistribution } from "./token-distribution.ts"
 import {
   advanceStreamingNow,
   initialStreamingTickState,
@@ -342,6 +343,12 @@ export function CacheHitSidebarHost(props: {
     })
   })
 
+  const tokenDist = createMemo(() => {
+    void refreshTick()
+    const msgs = historyMessages().length > 0 ? historyMessages() : mainMessages()
+    return computeTokenDistribution(msgs, props.api.state.part)
+  })
+
   return (
     <CacheHitSidebar
       sessionId={() => props.sessionId}
@@ -359,6 +366,7 @@ export function CacheHitSidebarHost(props: {
       formatRate={props.formatRate}
       streamingNow={streamingNow}
       firstPartTime={firstPartTime}
+      tokenDist={tokenDist}
     />
   )
 }

@@ -31,6 +31,13 @@ export type UiStrings = {
   agentsScopeHint: string
   secTTL: string
   tok: string
+  secDist: string
+  distSys: string
+  distUser: string
+  distAgent: string
+  distToolCall: string
+  distToolResult: string
+  distReasoning: string
   secSpeed: string
   lastCall: string
   avg: string
@@ -78,6 +85,13 @@ const EN: UiStrings = {
   agentsScopeHint: " · sub-sessions",
   secTTL: "TTL:",
   tok: "tok",
+  secDist: "Estimated Token Dist.",
+  distSys: "System:",
+  distUser: "User:",
+  distAgent: "Sub-Agent Instr:",
+  distToolCall: "Tool Call:",
+  distToolResult: "Tool Result:",
+  distReasoning: "Reasoning:",
   secSpeed: "Speed",
   lastCall: "Last:",
   avg: "Avg:",
@@ -122,6 +136,13 @@ const ZH: UiStrings = {
   agentsScopeHint: " · 仅子会话",
   secTTL: "存活:",
   tok: "tok",
+  secDist: "估算 Token 分布",
+  distSys: "系统提示:",
+  distUser: "用户输入:",
+  distAgent: "子代理指令:",
+  distToolCall: "工具调用:",
+  distToolResult: "工具返回:",
+  distReasoning: "思考过程:",
   secSpeed: "速度",
   lastCall: "最近:",
   avg: "平均:",

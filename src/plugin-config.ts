@@ -24,6 +24,8 @@ export type DisplayConfig = {
   showSpeed: boolean
   /** Speed display unit. Default "tpot". */
   speedUnit: "tpot" | "tps"
+  /** Show estimated token distribution section. Default true. */
+  showDistribution?: boolean
 }
 
 export const DEFAULT_DISPLAY: DisplayConfig = {
@@ -31,6 +33,7 @@ export const DEFAULT_DISPLAY: DisplayConfig = {
   panelBorder: true,
   showSpeed: true,
   speedUnit: "tpot",
+  showDistribution: true,
 }
 
 export type ToolSummaryConfig = {
@@ -195,6 +198,7 @@ export function normalizeDisplayConfig(raw: unknown): DisplayConfig {
   if (typeof o.panelBorder === "boolean") d.panelBorder = o.panelBorder
   else if (typeof o.agentsBorder === "boolean") d.panelBorder = o.agentsBorder
   if (typeof o.showSpeed === "boolean") d.showSpeed = o.showSpeed
+  if (typeof o.showDistribution === "boolean") d.showDistribution = o.showDistribution
   if (typeof o.speedUnit === "string") {
     const v = o.speedUnit.toLowerCase()
     if (v === "tps" || v === "tpot") d.speedUnit = v

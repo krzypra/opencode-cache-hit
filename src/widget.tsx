@@ -4,6 +4,7 @@ import type { DisplayConfig, CacheTTLConfig, DynamicPricingConfig } from "./plug
 import type { AssistantMessage, ProviderInfo, SessionSnapshot, SubAgentSummary } from "./types.ts"
 import type { SessionMessageLoadStatus } from "./session-messages.ts"
 import type { StreamingPhase } from "./streaming-state.ts"
+import type { TokenDist } from "./token-distribution.ts"
 import { PLUGIN_VERSION } from "./version.ts"
 import { AgentsView } from "./agents-view.tsx"
 import { MainSessionView } from "./main-session-view.tsx"
@@ -38,10 +39,12 @@ export function CacheHitSidebar(props: {
   formatRate: (perMillion: number) => string
   streamingNow: Accessor<{ phase: StreamingPhase; speed: number }>
   firstPartTime: Accessor<ReadonlyMap<string, number>>
+  tokenDist?: Accessor<TokenDist>
 }) {
   const [panelOpen, setPanelOpen] = createSignal(true)
   const detail = createSectionFold(true)
   const speed = createSectionFold(true)
+  const dist = createSectionFold(true)
   const model = createSectionFold(true)
   const lineages = createSectionFold(true)
   const agents = createSectionFold(true)
@@ -120,9 +123,12 @@ export function CacheHitSidebar(props: {
               layout={layout}
               detail={detail}
               speed={speed}
+              dist={dist}
               model={model}
               lineages={lineages}
               showSpeed={props.display.showSpeed}
+              showDistribution={props.display.showDistribution}
+              tokenDist={props.tokenDist}
               streamingNow={props.streamingNow}
               formatCost={props.formatCost}
               formatRate={props.formatRate}
