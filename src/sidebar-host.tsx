@@ -343,10 +343,15 @@ export function CacheHitSidebarHost(props: {
     })
   })
 
+  /**
+   * Distribution is computed from the TUI mirror, not the loaded history: the history
+   * loader keeps assistant messages only (session-messages.ts), so user prompts and
+   * injected system text would be invisible. The mirror also owns the parts that
+   * api.state.part() can resolve, so one source keeps every row on the same window.
+   */
   const tokenDist = createMemo(() => {
     void refreshTick()
-    const msgs = historyMessages().length > 0 ? historyMessages() : mainMessages()
-    return computeTokenDistribution(msgs, props.api.state.part)
+    return computeTokenDistribution(mainMessages(), props.api.state.part)
   })
 
   return (
