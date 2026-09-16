@@ -29,7 +29,7 @@ OpenCode TUI sidebar plugin: **cache hit rate**, **tokens**, **cost**, with **su
 ```bash
 bun test          # full unit + module-load smoke
 bun run check     # same as test
-bun run build     # emit dist/tui.js (the published ./tui entry)
+bun run bundle    # emit dist/tui.js (the committed ./tui entry)
 ```
 
 After moving or renaming exports: run full `bun test`; `tests/module-load.test.ts` imports the real consumer graph.
@@ -56,7 +56,7 @@ After moving or renaming exports: run full `bun test`; `tests/module-load.test.t
 ## npm publish
 
 - Tarball = `package.json` `"files"` only (bundled TUI entry, source TSX, example config, docs — no `tests/`, `logs/`, user config).
-- `exports["./tui"]` → `./dist/tui.js`, emitted by `bun run build` ([scripts/build-tui.ts](scripts/build-tui.ts)); `prepack` rebuilds it. `dist/` is gitignored but published — never commit it, and rebuild before testing the local file plugin.
+- `exports["./tui"]` → `./dist/tui.js`, emitted by `bun run bundle` ([scripts/build-tui.ts](scripts/build-tui.ts)). In this fork `dist/tui.js` is **committed**: opencode's installer aborts (`git dep preparation failed`) when package.json declares `prepare`/`prepack`/`build`, so no lifecycle script may rebuild it. Rebuild and commit it with every source change; the `pre-push` hook enforces it.
 - Keep `packages: "external"` in the build: opencode supplies one reactive runtime. Inlining `solid-js` / `@opentui/solid` breaks folding silently ([docs/adr/0001](docs/adr/0001-prebundled-tui-entry.md)).
 - Run `bun test` before `npm publish`; see [CONTRIBUTING.md](CONTRIBUTING.md).
 

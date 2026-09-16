@@ -73,13 +73,12 @@ var package_default = {
     test: "bun test tests/",
     check: "bun test tests/",
     syntax: "bun test tests/module-load.test.ts",
-    build: "bun run scripts/build-tui.ts",
+    bundle: "bun run scripts/build-tui.ts",
     hooks: "simple-git-hooks",
-    prepack: "bun run build",
     prepublishOnly: "bun test tests/"
   },
   "simple-git-hooks": {
-    "pre-push": "bun run build && git diff --quiet -- dist/tui.js || { echo 'dist/tui.js is stale \u2014 run bun run build and commit it'; exit 1; } && bun test tests/"
+    "pre-push": "bun run bundle && git diff --quiet -- dist/tui.js || { echo 'dist/tui.js is stale \u2014 run bun run bundle and commit it'; exit 1; } && bun test tests/"
   },
   dependencies: {
     "solid-js": "^1.9.0"

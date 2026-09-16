@@ -2,7 +2,7 @@ import { createSolidTransformPlugin } from "@opentui/solid/bun-plugin"
 
 /**
  * Build config for the published TUI entry. Keep this the single source of
- * truth: `bun run build` and the packaging tests both go through it, so the
+ * truth: `bun run bundle` and the packaging tests both go through it, so the
  * artifact we test is the artifact we publish.
  *
  * `packages: "external"` is load-bearing. opencode rewrites the bare

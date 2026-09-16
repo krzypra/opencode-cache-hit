@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { existsSync, readFileSync, rmSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
 /**
@@ -34,7 +34,7 @@ async function run(cmd: string[]) {
 
 // Build once for this file: the committed dist/tui.js must stay in sync with src/,
 // so every run rebuilds it before the assertions below inspect the artifact.
-const build = await run(["bun", "run", "build"])
+const build = await run(["bun", "run", "bundle"])
 const bundle = existsSync(bundlePath) ? readFileSync(bundlePath, "utf8") : ""
 
 describe("TUI build artifact", () => {
@@ -92,22 +92,27 @@ describe("packaging contract", () => {
     expect(readFileSync(join(root, ".gitignore"), "utf8")).not.toMatch(/^dist\/$/m)
   })
 
-  test("no prepare script: it would break installs from a git remote", () => {
-    expect(pkg.scripts.prepare).toBeUndefined()
+  test("no npm lifecycle script that blocks installs from a git remote", () => {
+    // pacote (npm's fetcher) prepares a git dependency — shelling out to `npm install`
+    // inside the clone — when package.json declares any of these scripts. opencode runs
+    // that install from its bundled runtime, where it fails as "git dep preparation
+    // failed". Keeping the build entry point named `bundle` is what makes
+    // `opencode plugin "<name>@github:<owner>/<repo>"` resolve at all.
+    // Source: pacote/lib/git.js → #prepareDir.
+    for (const script of ["prepare", "prepack", "build", "install", "preinstall", "postinstall"]) {
+      expect(pkg.scripts[script], `scripts.${script} blocks git installs`).toBeUndefined()
+    }
   })
 
-  test("publish lifecycle builds the entry", () => {
-    expect(pkg.scripts.build).toContain("scripts/build-tui.ts")
-    expect(pkg.scripts.prepack).toContain("build")
+  test("the bundle entry point is reachable from the scripts", () => {
+    expect(pkg.scripts.bundle).toContain("scripts/build-tui.ts")
   })
 
-  test("packing rebuilds dist/tui.js from scratch", async () => {
-    // `bun pm pack --dry-run` runs prepack + prepare and prints the file list
-    // without writing a tarball. npm's pack is avoided on purpose: it needs a
-    // writable ~/.npm cache. Deleting dist first proves the lifecycle — not a
-    // stale artifact — is what puts the entry in the tarball.
-    rmSync(bundlePath, { force: true })
-    expect(existsSync(bundlePath)).toBe(false)
+  test("packing ships the committed bundle", async () => {
+    // `bun pm pack --dry-run` prints the file list without writing a tarball. npm's pack
+    // is avoided on purpose: it needs a writable ~/.npm cache. Without a prepack hook the
+    // committed dist/tui.js is what ends up in the tarball, so it must exist beforehand.
+    expect(existsSync(bundlePath)).toBe(true)
 
     const pack = await run(["bun", "pm", "pack", "--dry-run"])
     expect(pack.exitCode, `pack failed:\n${pack.stderr}`).toBe(0)
@@ -119,7 +124,6 @@ describe("packaging contract", () => {
     // Guard the parser itself: a silent format change must fail loudly.
     expect(packed.length).toBeGreaterThan(50)
     expect(packed).toContain("dist/tui.js")
-    expect(existsSync(bundlePath)).toBe(true)
     for (const [subpath, target] of Object.entries(pkg.exports)) {
       expect(packed, `exports["${subpath}"] target is missing from the tarball`).toContain(
         target.replace(/^\.\//, ""),

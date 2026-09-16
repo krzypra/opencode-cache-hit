@@ -13,9 +13,9 @@
 >   and reimplemented as a standalone, unit-tested module (`src/token-distribution.ts`).
 > - **Prompt status bar** — one-line `hit% · tokens · speed` in the `session_prompt_right` slot, so the
 >   metrics stay visible below the 121-column sidebar threshold. Toggle: `display.showStatusBar`.
-> - **Git-installable packaging** — `dist/tui.js` is committed and the `prepare` script is removed,
->   because opencode's plugin installer aborts with `git dep preparation failed` for any git
->   dependency that declares `prepare`.
+> - **Git-installable packaging** — `dist/tui.js` is committed and no `prepare` / `prepack` / `build`
+>   script is declared (the build entry point is `bun run bundle`), because opencode's plugin installer
+>   aborts with `git dep preparation failed` for any git dependency declaring one of those scripts.
 >
 > **Install this fork** (no npm publish involved):
 > ```
@@ -109,7 +109,7 @@ Copy `cache-hit.config.example.json` → `~/.config/opencode/cache-hit.json` (re
 
 | Install | After update |
 |---------|----------------|
-| Local `./plugins/...` | Full restart (run `bun run build` first — the `./tui` entry is `dist/tui.js`) |
+| Local `./plugins/...` | Full restart (run `bun run bundle` first — the `./tui` entry is `dist/tui.js`) |
 | git `@github:owner/repo` | Restart; opencode never re-fetches a resolved spec, so remove `~/.cache/opencode/packages/<spec>` first |
 | npm `@latest` | Restart; if UI is stale, remove `~/.cache/opencode/packages/opencode-cache-hit@latest` |
 
