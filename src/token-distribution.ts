@@ -6,6 +6,11 @@
  * This module estimates the footprint of each component using character-based BPE
  * heuristics (~3.5 chars/tok for code/JSON, ~4 chars/tok for prose, ~1 tok/char CJK),
  * matching real-world cl100k_base / o200k_base ratios.
+ *
+ * The estimation heuristic and the per-role split are ported from
+ * opencode-visual-cache (MIT, Hotakus) — https://github.com/Hotakus/opencode-visual-cache
+ * — whose sidebar showed the same breakdown. Reimplemented here as a standalone,
+ * unit-tested module instead of inline panel code.
  */
 
 export function estimateTokens(text: string): number {

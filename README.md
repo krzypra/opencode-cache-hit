@@ -2,6 +2,30 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+> **This is a fork** of [zhumengzhu/opencode-cache-hit](https://github.com/zhumengzhu/opencode-cache-hit)
+> (MIT, © zhumengzhu), maintained for internal use and **not** intended to be merged upstream.
+> All credit for the plugin itself goes to the original author.
+>
+> **Added in this fork**
+> - **Estimated Token Dist.** — per-role context breakdown (system / user / sub-agent instructions /
+>   tool call / tool result / reasoning). The estimation heuristic and the per-role split are ported
+>   from [opencode-visual-cache](https://github.com/Hotakus/opencode-visual-cache) (MIT, © Hotakus)
+>   and reimplemented as a standalone, unit-tested module (`src/token-distribution.ts`).
+> - **Prompt status bar** — one-line `hit% · tokens · speed` in the `session_prompt_right` slot, so the
+>   metrics stay visible below the 121-column sidebar threshold. Toggle: `display.showStatusBar`.
+> - **Git-installable packaging** — `dist/tui.js` is committed and the `prepare` script is removed,
+>   because opencode's plugin installer aborts with `git dep preparation failed` for any git
+>   dependency that declares `prepare`.
+>
+> **Install this fork** (no npm publish involved):
+> ```
+> opencode plugin "opencode-cache-hit@github:krzypra/opencode-cache-hit"
+> ```
+> Or point `~/.config/opencode/tui.json` at a local clone:
+> `"plugin": ["file:///path/to/opencode-cache-hit"]`.
+>
+> Upstream releases stay on npm as `opencode-cache-hit@latest`; this fork is never published there.
+
 OpenCode **TUI sidebar plugin** for prompt **cache hit rate**, **token usage**, and **cost**—with first-class **sub-agent (child session)** rollup. **Standalone by default** (main + sub-agents in one panel). Optional coexistence with [opencode-visual-cache](https://www.npmjs.com/package/opencode-visual-cache).
 
 **Languages:** English (this file) · [简体中文](README.zh-CN.md) · [Documentation](docs/README.md)
@@ -85,7 +109,8 @@ Copy `cache-hit.config.example.json` → `~/.config/opencode/cache-hit.json` (re
 
 | Install | After update |
 |---------|----------------|
-| Local `./plugins/...` | Full restart |
+| Local `./plugins/...` | Full restart (run `bun run build` first — the `./tui` entry is `dist/tui.js`) |
+| git `@github:owner/repo` | Restart; opencode never re-fetches a resolved spec, so remove `~/.cache/opencode/packages/<spec>` first |
 | npm `@latest` | Restart; if UI is stale, remove `~/.cache/opencode/packages/opencode-cache-hit@latest` |
 
 Load errors: `~/.local/share/opencode/log/` (search `cache-hit` or `failed to load tui plugin`).

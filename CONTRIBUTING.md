@@ -57,8 +57,21 @@ Default changes (rate, paths) accompanied by new features → minor. Pure bugfix
 The published `./tui` entry is a **pre-transformed bundle**, `dist/tui.js` (`bun run build` → [scripts/build-tui.ts](scripts/build-tui.ts)). It has to be: opencode loads plugin TUI modules from `node_modules`, where OpenTUI's Solid transform is skipped, so raw TSX runs as generic JSX and mouse folding silently does nothing ([docs/adr/0001](docs/adr/0001-prebundled-tui-entry.md), [opencode#39986](https://github.com/anomalyco/opencode/issues/39986)).
 
 ```bash
-bun run build   # writes dist/tui.js; also runs on `bun install` (prepare) and before npm packs (prepack)
+bun run build   # writes dist/tui.js; also runs before npm packs (prepack)
 ```
+
+**Fork note — `dist/tui.js` is committed.** This fork is installed straight from the git remote
+(`opencode plugin "opencode-cache-hit@github:krzypra/opencode-cache-hit"`), and opencode's installer
+runs Arborist with `ignoreScripts`, aborting with `git dep preparation failed` for any git dependency
+that declares a `prepare` script — reproduced with a probe package whose `prepare` was a bare
+`node -e "…"`. So `prepare` is removed here and the built bundle lives in the repository instead.
+Rebuild and commit it together with the source change:
+
+```bash
+bun run build && git add dist/tui.js
+```
+
+The `pre-push` hook rebuilds and refuses the push when `dist/tui.js` is out of sync with `src/`.
 
 Keep `packages: "external"` in the build config: opencode resolves `solid-js` / `@opentui/solid` to its own runtime modules, and inlining them creates a second runtime whose signals never repaint the host renderer.
 
@@ -66,7 +79,7 @@ Keep `packages: "external"` in the build config: opencode resolves `solid-js` / 
 
 - `dist/tui.js` (the `./tui` entry), `index.tsx`, `src/`, docs, `scripts/`, `cache-hit.config.example.json`, READMEs, `AGENTS.md`, `CONTRIBUTING.md`, `CONTEXT.md`, `LICENSE`
 - Not included: `tests/`, `logs/`, personal `cache-hit.config.json`, `node_modules/`
-- `dist/` is gitignored: it is built into the tarball, not committed.
+- `dist/` is committed in this fork (see the fork note above); upstream keeps it gitignored.
 - Verify the shipped shape before publishing: `bun pm pack --dry-run` (runs `prepack`, lists the tarball without writing it).
 
 **npmjs.com page**

@@ -32,8 +32,8 @@ async function run(cmd: string[]) {
   return { stdout, stderr, exitCode }
 }
 
-// Build once for this file: `bun test` must pass on a clean checkout, where
-// dist/ is gitignored and does not exist yet.
+// Build once for this file: the committed dist/tui.js must stay in sync with src/,
+// so every run rebuilds it before the assertions below inspect the artifact.
 const build = await run(["bun", "run", "build"])
 const bundle = existsSync(bundlePath) ? readFileSync(bundlePath, "utf8") : ""
 
@@ -81,15 +81,24 @@ describe("packaging contract", () => {
     expect(existsSync(join(root, pkg.exports["./tui"]))).toBe(true)
   })
 
-  test("dist is published but never committed", () => {
+  test("dist is published and committed", () => {
+    // Fork deviation from upstream: opencode's plugin installer runs Arborist with
+    // ignoreScripts and aborts with "git dep preparation failed" for any git
+    // dependency that declares a `prepare` script — verified with a minimal probe
+    // package whose prepare was only `node -e "..."`. Without `prepare` nothing
+    // builds the bundle on install, so `dist/tui.js` has to be in the repository
+    // for `opencode plugin <name>@github:<owner>/<repo>` to resolve `./tui`.
     expect(pkg.files).toContain("dist")
-    expect(readFileSync(join(root, ".gitignore"), "utf8")).toMatch(/^dist\/$/m)
+    expect(readFileSync(join(root, ".gitignore"), "utf8")).not.toMatch(/^dist\/$/m)
+  })
+
+  test("no prepare script: it would break installs from a git remote", () => {
+    expect(pkg.scripts.prepare).toBeUndefined()
   })
 
   test("publish lifecycle builds the entry", () => {
     expect(pkg.scripts.build).toContain("scripts/build-tui.ts")
     expect(pkg.scripts.prepack).toContain("build")
-    expect(pkg.scripts.prepare).toContain("build")
   })
 
   test("packing rebuilds dist/tui.js from scratch", async () => {

@@ -1,16 +1,19 @@
 {
   "name": "opencode-cache-hit",
-  "version": "0.7.5",
+  "version": "0.7.5-fork.1",
   "description": "OpenCode TUI sidebar: prompt cache hit rate, tokens & cost with sub-agent rollup. Works with opencode-visual-cache; optional per-call JSONL timeline.",
   "type": "module",
   "license": "MIT",
   "author": "mengzhu.zhu <mengzhu.loveyou@gmail.com>",
+  "contributors": [
+    "krzypra (fork maintainer: token distribution, prompt status bar)"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/zhumengzhu/opencode-cache-hit"
+    "url": "https://github.com/krzypra/opencode-cache-hit"
   },
-  "homepage": "https://github.com/zhumengzhu/opencode-cache-hit#readme",
-  "bugs": "https://github.com/zhumengzhu/opencode-cache-hit/issues",
+  "homepage": "https://github.com/krzypra/opencode-cache-hit#readme",
+  "bugs": "https://github.com/krzypra/opencode-cache-hit/issues",
   "keywords": [
     "opencode",
     "opencode-plugin",
@@ -55,11 +58,10 @@
     "build": "bun run scripts/build-tui.ts",
     "hooks": "simple-git-hooks",
     "prepack": "bun run build",
-    "prepublishOnly": "bun test tests/",
-    "prepare": "bun run build && bun run hooks"
+    "prepublishOnly": "bun test tests/"
   },
   "simple-git-hooks": {
-    "pre-push": "bun test tests/"
+    "pre-push": "bun run build && git diff --quiet -- dist/tui.js || { echo 'dist/tui.js is stale — run bun run build and commit it'; exit 1; } && bun test tests/"
   },
   "dependencies": {
     "solid-js": "^1.9.0"
