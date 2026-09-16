@@ -20,8 +20,6 @@ const snapshot = (over: Partial<SessionSnapshot> = {}): SessionSnapshot => ({
   ...over,
 })
 
-const usd = (n: number) => (n > 0 ? `~$${n.toFixed(4)}` : "")
-
 describe("statusBarContextTokens", () => {
   test("sums the input side only (fresh input + cache read + cache write)", () => {
     expect(statusBarContextTokens(snapshot())).toBe(26_000_000 + 473_500_000 + 9_700_000)
@@ -34,14 +32,13 @@ describe("statusBarContextTokens", () => {
 })
 
 describe("composeStatusBarSegments", () => {
-  test("renders hit rate, context tokens, speed and cost", () => {
+  test("renders hit rate, context tokens and speed", () => {
     const segments = composeStatusBarSegments({
       snapshot: snapshot(),
       speedTps: 90,
       useTps: true,
-      formatCost: usd,
     })
-    expect(segments).toEqual(["94.7%", "509.2M tok", "90 tok/s", "~$162.1500"])
+    expect(segments).toEqual(["94.7%", "509.2M tok", "90 tok/s"])
   })
 
   test("renders speed as ms/tok when tps display is off", () => {
@@ -49,7 +46,6 @@ describe("composeStatusBarSegments", () => {
       snapshot: snapshot(),
       speedTps: 50,
       useTps: false,
-      formatCost: usd,
     })
     expect(segments[2]).toBe("20 ms/tok")
   })
@@ -59,19 +55,18 @@ describe("composeStatusBarSegments", () => {
       snapshot: snapshot(),
       speedTps: undefined,
       useTps: true,
-      formatCost: usd,
     })
-    expect(segments).toEqual(["94.7%", "509.2M tok", "~$162.1500"])
+    expect(segments).toEqual(["94.7%", "509.2M tok"])
   })
 
-  test("omits the cost segment when the session has no cost", () => {
+  test("never renders cost — opencode already shows session spend in its footer", () => {
     const segments = composeStatusBarSegments({
-      snapshot: snapshot({ cost: 0 }),
+      snapshot: snapshot({ cost: 999.99 }),
       speedTps: 90,
       useTps: true,
-      formatCost: usd,
     })
     expect(segments).toEqual(["94.7%", "509.2M tok", "90 tok/s"])
+    expect(segments.some((segment) => segment.includes("$"))).toBe(false)
   })
 
   test("returns no segments for an empty session", () => {
@@ -79,13 +74,11 @@ describe("composeStatusBarSegments", () => {
       snapshot: snapshot({ input: 0, cacheRead: 0, cacheWrite: 0, cost: 0 }),
       speedTps: undefined,
       useTps: true,
-      formatCost: usd,
     })
     expect(segments).toEqual([])
     expect(composeStatusBarText({
       snapshot: snapshot({ input: 0, cacheRead: 0, cacheWrite: 0, cost: 0 }),
       useTps: true,
-      formatCost: usd,
     })).toBe("")
   })
 })
@@ -96,9 +89,8 @@ describe("composeStatusBarText", () => {
       snapshot: snapshot(),
       speedTps: 90,
       useTps: true,
-      formatCost: usd,
     })
-    expect(text).toBe(`94.7%${STATUS_BAR_SEPARATOR}509.2M tok${STATUS_BAR_SEPARATOR}90 tok/s${STATUS_BAR_SEPARATOR}~$162.1500`)
+    expect(text).toBe(`94.7%${STATUS_BAR_SEPARATOR}509.2M tok${STATUS_BAR_SEPARATOR}90 tok/s`)
   })
 })
 

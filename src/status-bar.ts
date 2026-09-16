@@ -2,8 +2,9 @@
  * Compact one-line session metrics for the prompt hint row (`session_prompt_right` slot).
  *
  * The sidebar only mounts when the TUI is wider than 120 columns, so this row is the
- * only place cache/speed/cost metrics stay visible on a narrow terminal. Kept as a pure
- * function so the composition is unit-testable without a renderer.
+ * only place cache/speed metrics stay visible on a narrow terminal. Cost is deliberately
+ * absent: opencode already prints session spend in its own footer and Context panel.
+ * Kept as a pure function so the composition is unit-testable without a renderer.
  */
 import { cacheHitRatio } from "./stats.ts"
 import { formatRatioAsPercent } from "./format-cache-ui.ts"
@@ -19,7 +20,6 @@ export type StatusBarInput = {
   speedTps?: number
   /** Render speed as tok/s (true) or ms/tok (false). */
   useTps: boolean
-  formatCost: (amount: number) => string
 }
 
 /**
@@ -44,11 +44,6 @@ export function composeStatusBarSegments(input: StatusBarInput): string[] {
     segments.push(
       input.useTps ? formatTokenSpeed(input.speedTps) : formatTokenTpot(1000 / input.speedTps),
     )
-  }
-
-  if (snapshot.cost > 0) {
-    const cost = input.formatCost(snapshot.cost)
-    if (cost) segments.push(cost)
   }
 
   return segments

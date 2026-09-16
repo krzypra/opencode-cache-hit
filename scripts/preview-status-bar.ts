@@ -7,10 +7,7 @@
  * Usage: bun run scripts/preview-status-bar.ts
  */
 import { composeStatusBarText } from "../src/status-bar.ts"
-import { createCostFormatter } from "../src/format-cost.ts"
 import type { SessionSnapshot } from "../src/types.ts"
-
-const usd = createCostFormatter({ currency: "USD", costUnit: "USD", rate: 1 })
 
 const snapshot = (over: Partial<SessionSnapshot>): SessionSnapshot => ({
   model: "claude-opus-5",
@@ -27,7 +24,7 @@ const snapshot = (over: Partial<SessionSnapshot>): SessionSnapshot => ({
 const cases: Array<{ label: string; text: string }> = [
   {
     label: "fresh session (no calls yet)",
-    text: composeStatusBarText({ snapshot: snapshot({}), useTps: true, formatCost: usd }),
+    text: composeStatusBarText({ snapshot: snapshot({}), useTps: true }),
   },
   {
     label: "first call, still streaming",
@@ -35,7 +32,6 @@ const cases: Array<{ label: string; text: string }> = [
       snapshot: snapshot({ input: 24_100, output: 320, cacheRead: 0, cacheWrite: 24_000, cost: 0.184 }),
       speedTps: 118,
       useTps: true,
-      formatCost: usd,
     }),
   },
   {
@@ -51,7 +47,6 @@ const cases: Array<{ label: string; text: string }> = [
       }),
       speedTps: 90,
       useTps: true,
-      formatCost: usd,
     }),
   },
   {
@@ -66,7 +61,6 @@ const cases: Array<{ label: string; text: string }> = [
       }),
       speedTps: 90,
       useTps: false,
-      formatCost: usd,
     }),
   },
   {
@@ -74,7 +68,6 @@ const cases: Array<{ label: string; text: string }> = [
     text: composeStatusBarText({
       snapshot: snapshot({ input: 1_400_000, cacheRead: 6_000_000, cacheWrite: 120_000, cost: 1.5037 }),
       useTps: true,
-      formatCost: usd,
     }),
   },
 ]

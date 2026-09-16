@@ -43,7 +43,6 @@ export const tui = async (api: OpenCodeTuiApi) => {
               sessionId={props.session_id ?? ""}
               theme={ctx.theme.current}
               useTps={pluginConfig.display.speedUnit === "tps"}
-              formatCost={formatCost}
               api={api}
             />
           )

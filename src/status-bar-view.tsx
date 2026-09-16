@@ -23,7 +23,6 @@ export function StatusBarView(props: {
   sessionId: string
   theme: Record<string, unknown>
   useTps: boolean
-  formatCost: (amount: number) => string
   api: OpenCodeTuiApi
 }) {
   const [tick, setTick] = createSignal(0)
@@ -75,7 +74,6 @@ export function StatusBarView(props: {
       snapshot: snapshot(),
       speedTps: speed(),
       useTps: props.useTps,
-      formatCost: props.formatCost,
     }),
   )
 
