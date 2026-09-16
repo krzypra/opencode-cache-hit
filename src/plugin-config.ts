@@ -26,6 +26,8 @@ export type DisplayConfig = {
   speedUnit: "tpot" | "tps"
   /** Show estimated token distribution section. Default true. */
   showDistribution?: boolean
+  /** Show the one-line metrics bar in the prompt hint row. Default true. */
+  showStatusBar?: boolean
 }
 
 export const DEFAULT_DISPLAY: DisplayConfig = {
@@ -34,6 +36,7 @@ export const DEFAULT_DISPLAY: DisplayConfig = {
   showSpeed: true,
   speedUnit: "tpot",
   showDistribution: true,
+  showStatusBar: true,
 }
 
 export type ToolSummaryConfig = {
@@ -199,6 +202,7 @@ export function normalizeDisplayConfig(raw: unknown): DisplayConfig {
   else if (typeof o.agentsBorder === "boolean") d.panelBorder = o.agentsBorder
   if (typeof o.showSpeed === "boolean") d.showSpeed = o.showSpeed
   if (typeof o.showDistribution === "boolean") d.showDistribution = o.showDistribution
+  if (typeof o.showStatusBar === "boolean") d.showStatusBar = o.showStatusBar
   if (typeof o.speedUnit === "string") {
     const v = o.speedUnit.toLowerCase()
     if (v === "tps" || v === "tpot") d.speedUnit = v

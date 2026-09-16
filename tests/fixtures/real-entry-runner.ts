@@ -65,8 +65,10 @@ const api = {
   },
   event: { on: () => () => {} },
   slots: {
-    register(opts: { slots: { sidebar_content: Slot } }) {
-      slot = opts.slots.sidebar_content
+    // The plugin registers more than one slot (sidebar_content, session_prompt_right);
+    // keep the sidebar callback instead of letting a later registration clear it.
+    register(opts: { slots: { sidebar_content?: Slot } }) {
+      slot = opts.slots.sidebar_content ?? slot
     },
   },
 }

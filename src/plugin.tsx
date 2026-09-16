@@ -1,5 +1,6 @@
 /** @jsxImportSource @opentui/solid */
 import { CacheHitSidebarHost } from "./sidebar-host.tsx"
+import { StatusBarView } from "./status-bar-view.tsx"
 import { loadPluginConfig } from "./load-config.ts"
 import { createCostFormatter, createRateFormatter } from "./format-cost.ts"
 import type { OpenCodeTuiApi } from "./types.ts"
@@ -31,6 +32,25 @@ export const tui = async (api: OpenCodeTuiApi) => {
       },
     },
   })
+
+  if (pluginConfig.display.showStatusBar) {
+    api.slots.register({
+      order: 56,
+      slots: {
+        session_prompt_right(ctx, props) {
+          return (
+            <StatusBarView
+              sessionId={props.session_id ?? ""}
+              theme={ctx.theme.current}
+              useTps={pluginConfig.display.speedUnit === "tps"}
+              formatCost={formatCost}
+              api={api}
+            />
+          )
+        },
+      },
+    })
+  }
 }
 
 const plugin = { id: PLUGIN_ID, tui }

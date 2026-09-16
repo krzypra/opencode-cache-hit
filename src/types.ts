@@ -158,7 +158,12 @@ export type OpenCodeTuiApi = {
     register: (opts: {
       order: number
       slots: {
-        sidebar_content: (
+        sidebar_content?: (
+          ctx: { theme: { current: Record<string, unknown> } },
+          props: { session_id: string },
+        ) => unknown
+        /** Right-hand side of the prompt hint row; stays visible when the sidebar is hidden. */
+        session_prompt_right?: (
           ctx: { theme: { current: Record<string, unknown> } },
           props: { session_id: string },
         ) => unknown

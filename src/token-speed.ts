@@ -91,3 +91,30 @@ export function estimateStreamingSpeed(
   const estimated = Math.max(1, Math.round(text.length / 4))
   return estimated / elapsed
 }
+
+/**
+ * Tokens per second of the most recent completed interactive assistant message.
+ * Mirrors the sidebar's Speed → Last row, exposed for consumers outside the
+ * sidebar (e.g. the prompt status bar) that need the value rather than a label.
+ */
+export function lastCompletedTokenSpeed(
+  messages: readonly AssistantMessage[],
+  firstPartTime?: ReadonlyMap<string, number>,
+): number | undefined {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i]
+    if (!isInteractiveAssistantMessage(msg)) continue
+    const timing = timingFromAssistantMessage(msg)
+    if (!timing?.isComplete) continue
+    const output = msg.tokens?.output ?? 0
+    const reasoning = msg.tokens?.reasoning ?? 0
+    if (output + reasoning === 0) continue
+    const msgID = msg.id ?? msg.messageID
+    const firstTime = msgID ? firstPartTime?.get(msgID) : undefined
+    const durationMs = generationDurationMs(timing, firstTime)
+    if (durationMs === undefined) continue
+    const speed = computeTokenSpeed(output, reasoning, durationMs)
+    if (speed > 0) return speed
+  }
+  return undefined
+}
